@@ -45,7 +45,16 @@ const documentApi = {
           Authorization: `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`,
         }
       })
+    },
+
+    updateDocument: async (id, data) => {
+      return api.patch(`/api/documents/${id}/`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`,
+        }
+      })
     }
+    
   }
   export { api };
   export default documentApi;

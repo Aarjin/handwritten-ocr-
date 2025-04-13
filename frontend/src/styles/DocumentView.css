@@ -102,7 +102,6 @@
   flex: 1;
   gap: 16px;
   padding: 16px 24px;
-  border: 30px #c33939;
 }
 
 .document-preview {
@@ -113,8 +112,6 @@
   position: relative;
   border: 1px solid #d3d3d3;
   padding: 5px;
-
-  
 }
 
 .document-image {
@@ -190,13 +187,6 @@
   background-color: #f5f5f5;
 }
 
-
-.transcription-line {
-  margin: 8px 0;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
 .editable-transcription {
   width: 100%;
   min-height: 300px;
@@ -206,19 +196,7 @@
   line-height: 1.5;
   resize: vertical;
   outline: none;
-}
-
-.empty-transcript {
-  color: #494848;
-  font-style: italic;
-  padding: 16px;
-  text-align: center;
-}
-
-.transcript-display {
   padding: 10px;
-  border-radius: 4px;
-
 }
 
 @keyframes fadeIn {

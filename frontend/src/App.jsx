@@ -6,6 +6,8 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import DocumentView from './pages/DocumentView'
 import UploadFile from './pages/UploadFile'
 import UserDashboard from './pages/UserDashboard'
+import NotFound from './pages/NotFound'
+import Home from './pages/Home'
 
 function Logout(){
   localStorage.clear()
@@ -34,9 +36,9 @@ function App() {
       <Route path='/register' element = {<RegisterAndLogut />}/>
       <Route path='/document-view/:documentId' element = {<DocumentView />}/>
       <Route path='/dashboard' element = {<UserDashboard />}/>
+      <Route path='/' element = {<Home />}/>
+      <Route path='*' element = {<NotFound />}/>
 
-    
-      {/* <Route path='*' element = {<NotFound />}/> */}
       </Routes>
       </BrowserRouter>
   )

@@ -38,16 +38,14 @@ function Login (){
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Username"
-            required
-        />
+            required/>
         <input
             className="form-input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            required
-        />
+            required/>
         <button className="form-button" type="submit" disabled={loading}>
             {loading ? "Loading..." : "Login"}
         </button>

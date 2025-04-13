@@ -16,7 +16,7 @@ function UploadFile() {
   const handleLogout = () => {
     localStorage.removeItem('ACCESS_TOKEN')
     localStorage.removeItem('REFRESH_TOKEN')
-    navigate('/login')
+    navigate('/')
   }
 
 
