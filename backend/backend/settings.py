@@ -17,6 +17,11 @@ MEDIA_ROOT =BASE_DIR /'media'
 TROCR_MODEL_PATH = BASE_DIR.parent / 'models' / 'trocr-large-finetuned'
 
 
+ROBOFLOW_API_KEY = "LayCHSSGQjIipdZGOMOi"  # Replace with your actual Private API Key from Roboflow
+ROBOFLOW_MODEL_ENDPOINT = "https://serverless.roboflow.com/infer/workflows/aaa-8kwq1/custom-workflow-3" 
+ROBOFLOW_API_TIMEOUT = 30
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 

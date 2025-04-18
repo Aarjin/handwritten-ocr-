@@ -6,8 +6,5 @@ PyJWT
 psycopg2-binary
 python-dotenv
 Pillow
-pytesseract
-tensorflow
 numpy
-keras
 Celery
