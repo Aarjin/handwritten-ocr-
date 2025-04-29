@@ -1,8 +1,12 @@
 import { useState, useRef } from "react";
-import { Link,useNavigate } from "react-router-dom";
-import {api} from "../api";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../api";
 import '../styles/UploadFile.css';
 
+/**
+ * Handles file uploads for OCR processing with drag-drop support,
+ * language selection, and file validation
+ */
 function UploadFile() {
   const navigate = useNavigate()
   const [file, setFile] = useState(null)
@@ -10,7 +14,8 @@ function UploadFile() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const [isDragging,setIsDragging]=useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [language, setLanguage] = useState("english") // Default language
   const fileInputRef = useRef(null)
 
   const handleLogout = () => {
@@ -19,16 +24,22 @@ function UploadFile() {
     navigate('/')
   }
 
+  const handleLanguageChange = (e) => {
+    setLanguage(e.target.value)
+  }
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
     validateAndSetFile(selectedFile)
   }
 
-  const validateAndSetFile= (selectedFile) => {
-    if(!selectedFile) return
+  /**
+   * Validates file type (only accepts JPG and PNG)
+   */
+  const validateAndSetFile = (selectedFile) => {
+    if (!selectedFile) return
 
-    if(selectedFile.type !== 'image/jpeg' && selectedFile.type !=='image/png'){
+    if (selectedFile.type !== 'image/jpeg' && selectedFile.type !== 'image/png') {
       setError('Please select either jpg or png file formats')
       return
     }
@@ -40,10 +51,12 @@ function UploadFile() {
     setFile(null)
   }
 
-  const handleDragOver = (e) =>{
+  // Drag and drop handlers
+  const handleDragOver = (e) => {
     e.preventDefault()
     setIsDragging(true)
   }
+  
   const handleDragLeave = () => {
     setIsDragging(false)
   }
@@ -64,6 +77,10 @@ function UploadFile() {
     else return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB'
   }
 
+  /**
+   * Uploads image to the server and redirects to document view on success.
+   * Includes the language parameter for OCR processing.
+   */
   const handleImageUpload = async (e) => {
     if (e) e.preventDefault();
     if (!file) return
@@ -74,6 +91,7 @@ function UploadFile() {
     try {
       const formData = new FormData()
       formData.append('image', file)
+      formData.append('language', language)
       
       const response = await api.post('api/upload/', formData, {
         headers: {
@@ -82,6 +100,7 @@ function UploadFile() {
         }
       })
       
+      // Handle different API response formats
       const imageUrl = response.data.imageUrl || response.data.image
       const documentId = response.data.document_id || response.data.id
       
@@ -89,14 +108,17 @@ function UploadFile() {
       setSuccess(true)
       setFile(null)
       
-    
+      // Short delay to show success message before redirect
       setTimeout(() => {
-                  navigate(`/document-view/${documentId}`,{
-                    state: {
-                      fileName: file.name,
-                      image_url: imageUrl,
-                    processingStatus:response.data.processing_status || 'complete'}})
-                  },2000)
+        navigate(`/document-view/${documentId}`, {
+          state: {
+            fileName: file.name,
+            image_url: imageUrl,
+            processingStatus: response.data.processing_status || 'complete',
+            language: language 
+          }
+        })
+      }, 2000)
     } catch (error) {
       setError('Failed to upload image')
     } finally {
@@ -106,16 +128,17 @@ function UploadFile() {
 
   return (
     <div className="main">
+      {/* Navigation */}
       <nav className="navbar">
         <button className="logout-button" onClick={handleLogout}>Logout</button>
         <div className="navbar-menu">
-        <Link to="/upload" className={location.pathname === "/upload" ? "active" : ""}>
-          Upload
-        </Link>
-        <Link to="/dashboard" className={location.pathname === "/dashboard" ? "active" : ""}>
-          My Documents
-        </Link>
-      </div>
+          <Link to="/upload" className={location.pathname === "/upload" ? "active" : ""}>
+            Upload
+          </Link>
+          <Link to="/dashboard" className={location.pathname === "/dashboard" ? "active" : ""}>
+            My Documents
+          </Link>
+        </div>
       </nav>
       
       <div className="upload-container">
@@ -125,6 +148,34 @@ function UploadFile() {
           </div>
         )}
 
+        {/* Language Selection */}
+        <div className="language-selection">
+          <h3>Select Language</h3>
+          <div className="language-options">
+            <label className={`language-option ${language === "english" ? "selected" : ""}`}>
+              <input
+                type="radio"
+                name="language"
+                value="english"
+                checked={language === "english"}
+                onChange={handleLanguageChange}
+              />
+              <span className="language-name">English</span>
+            </label>
+            <label className={`language-option ${language === "nepali" ? "selected" : ""}`}>
+              <input
+                type="radio"
+                name="language"
+                value="nepali"
+                checked={language === "nepali"}
+                onChange={handleLanguageChange}
+              />
+              <span className="language-name">नेपाली (Nepali)</span>
+            </label>
+          </div>
+        </div>
+
+        {/* File Drop Area */}
         <div 
           className={`file-drop-area ${isDragging ? 'dragging' : ''}`}
           onClick={() => fileInputRef.current.click()}
@@ -194,10 +245,9 @@ function UploadFile() {
             </div>
           </div>
         )}
-
       </div>
-      
     </div>
   )
 }
+
 export default UploadFile;

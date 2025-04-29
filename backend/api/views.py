@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers
 from .serializers import UserSerializer, UploadedImageSerializer,ExtractedTextSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
@@ -7,9 +7,48 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import UploadedImage, ExtractedText
 import logging
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import authenticate
 from .ocr_utils import perform_ocr_on_image
 
 logger = logging.getLogger(__name__)
+
+# Add this to your views.py file
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        # Extract credentials
+        username = attrs.get('username', '')
+        password = attrs.get('password', '')
+        
+        # Validate that both username and password are provided
+        if not username or not password:
+            raise serializers.ValidationError(
+                {'error': 'Both username and password are required'}
+            )
+        
+        # Check if the user exists
+        try:
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'error': 'Invalid credentials'})
+        
+        # Attempt authentication
+        user = authenticate(username=username, password=password)
+        if not user:
+            raise serializers.ValidationError({'error': 'Invalid credentials'})
+        
+        # Check if the user account is active
+        if not user.is_active:
+            raise serializers.ValidationError({'error': 'Account is disabled'})
+        
+        # If all validations pass, return the token
+        return super().validate(attrs)
+
+class CustomTokenView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -27,9 +66,15 @@ class ImageUploadView(APIView):
 
         image_file = request.FILES['image']
         file_name = image_file.name
+        
+        # Get language from request data
+        language = request.data.get('language', 'english')
+        if language not in ['english', 'nepali']:
+            logger.warning(f"Invalid language selected: {language}")
+            language = 'english'  # Default to English if invalid
 
         # Set initial status, OCR will update later if successful
-        request.data['processing_status'] = 'processing' # Indicate OCR is pending
+        request.data['processing_status'] = 'processing'  # Indicate OCR is pending
 
         serializer = UploadedImageSerializer(
             data=request.data,
@@ -39,8 +84,8 @@ class ImageUploadView(APIView):
         if serializer.is_valid():
             try:
                 # Save the UploadedImage instance first
-                uploaded_image = serializer.save(user=request.user, filename=file_name)
-                logger.info(f"Image {uploaded_image.id} record saved for user {request.user.username}.")
+                uploaded_image = serializer.save(user=request.user, filename=file_name, language=language)
+                logger.info(f"Image {uploaded_image.id} record saved for user {request.user.username} with language: {language}.")
 
                 # --- Perform OCR ---
                 ocr_text_result = None
@@ -49,46 +94,45 @@ class ImageUploadView(APIView):
                     # Read image bytes from the saved file field
                     image_bytes = uploaded_image.image.read()
                     if image_bytes:
-                         logger.info(f"Read {len(image_bytes)} bytes for OCR from image {uploaded_image.id}.")
-                         ocr_text_result = perform_ocr_on_image(image_bytes)
+                        logger.info(f"Read {len(image_bytes)} bytes for OCR from image {uploaded_image.id}.")
+                        ocr_text_result = perform_ocr_on_image(image_bytes, language)
                     else:
                         logger.warning(f"Could not read image bytes for image {uploaded_image.id}.")
                         ocr_error = "Could not read image file data for OCR."
 
                 except Exception as ocr_exc:
                     logger.exception(f"OCR failed for image {uploaded_image.id}: {ocr_exc}")
-                    ocr_error = f"OCR process failed: {str(ocr_exc)[:100]}" # Keep error brief
+                    ocr_error = f"OCR process failed: {str(ocr_exc)[:100]}"  # Keep error brief
 
                 # --- Save Extracted Text and Update Status ---
                 if ocr_text_result is not None:
                     ExtractedText.objects.create(image=uploaded_image, text=ocr_text_result)
-                    uploaded_image.processing_status = 'complete' # OCR successful
+                    uploaded_image.processing_status = 'complete'  # OCR successful
                     logger.info(f"OCR successful for image {uploaded_image.id}, text saved.")
                 else:
-                    uploaded_image.processing_status = 'ocr_failed' # OCR failed
+                    uploaded_image.processing_status = 'ocr_failed'  # OCR failed
                     logger.warning(f"OCR failed or produced no text for image {uploaded_image.id}.")
                     # Optionally save the error message if you add a field for it
 
-                uploaded_image.save(update_fields=['processing_status']) # Save status update
+                uploaded_image.save(update_fields=['processing_status'])  # Save status update
 
                 # --- Prepare Response ---
                 # Use the serializer again to get the final representation, including the new status and text
                 final_serializer = UploadedImageSerializer(uploaded_image, context={'request': request})
                 response_data = final_serializer.data
                 if ocr_error:
-                    response_data['ocr_error'] = ocr_error # Include OCR error if any
+                    response_data['ocr_error'] = ocr_error  # Include OCR error if any
 
                 return Response(response_data, status=status.HTTP_201_CREATED)
 
             except Exception as e:
-                 # Catch broader errors during saving or OCR step
-                 logger.exception(f"Error during image upload processing for user {request.user.username}: {e}")
-                 return Response({"error": f"An internal error occurred during upload processing."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+                # Catch broader errors during saving or OCR step
+                logger.exception(f"Error during image upload processing for user {request.user.username}: {e}")
+                return Response({"error": f"An internal error occurred during upload processing."}, 
+                               status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             logger.warning(f"Image upload serialization failed for user {request.user.username}: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class DocumentListView(APIView):
     permission_classes = [IsAuthenticated]

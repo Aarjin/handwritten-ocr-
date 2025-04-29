@@ -137,7 +137,7 @@ function UserDashboard() {
           </div>
         ) : (
           <div className="documents-container">
-            <h2>Your Documents</h2>
+            <h2>My Documents</h2>
 
             {documents.length === 0 ? (
               <div className="empty-state">

@@ -14,8 +14,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT =BASE_DIR /'media'
 
 
-TROCR_MODEL_PATH = BASE_DIR.parent / 'models' / 'trocr-large-finetuned'
-
+ENGLISH_TROCR_MODEL_PATH = BASE_DIR.parent / 'models' / 'trocr-large-finetuned'
+NEPALI_TROCR_MODEL_PATH = BASE_DIR.parent / 'models' / 'nepali-ocr-model'
 
 ROBOFLOW_API_KEY = "LayCHSSGQjIipdZGOMOi"  # Replace with your actual Private API Key from Roboflow
 ROBOFLOW_MODEL_ENDPOINT = "https://serverless.roboflow.com/infer/workflows/aaa-8kwq1/custom-workflow-3" 

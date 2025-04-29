@@ -4,7 +4,7 @@ import "../styles/home.css";
 function Home() {
   return (
     <div className="home">
-      {/* Minimal Header */}
+      {/* Header */}
       <header className="header">
         <div className="container">
           <div className="logo">DevnagariDigitizer</div>
@@ -17,7 +17,7 @@ function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Main Section */}
       <section className="hero">
         <div className="container">
           <div className="hero-content">
@@ -34,9 +34,6 @@ function Home() {
                 Sign In
               </Link>
             </div>
-          </div>
-          <div className="hero-image">
-            <img src="" alt="Should I place a image here???" />
           </div>
         </div>
       </section>
@@ -114,7 +111,7 @@ function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Sign up prompt */}
       <section className="cta">
         <div className="container">
           <h2>Ready to get started?</h2>

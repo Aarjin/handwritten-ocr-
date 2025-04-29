@@ -16,15 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import CreateUserView, ImageUploadView,DocumentDetailView, DocumentListView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from api.views import CreateUserView, ImageUploadView,DocumentDetailView, DocumentListView, CustomTokenView
+from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/user/register/',CreateUserView.as_view(),name='register'),
-    path('api/token/', TokenObtainPairView.as_view(), name='get_token'),
+    path('api/token/', CustomTokenView.as_view(), name='get_token'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('api/upload/', ImageUploadView.as_view(), name='upload_image'),
     path('api/documents/', DocumentListView.as_view(), name='document_list'),

@@ -1,36 +1,107 @@
 .form-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 50px auto;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-  }
-  
-  .form-input {
-    width: 90%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  .form-button {
-    width: 95%;
-    padding: 10px;
-    margin: 20px 0;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-  }
-  
-  .form-button:hover {
-    background-color: #0056b3;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  cursor: default; /* Prevent any text cursor outside text fields */
+  user-select: none; /* Prevent text selection outside inputs */
+}
+
+.input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+  background: none !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.form-input {
+  width: 95%;
+  padding: 10px;
+  margin: 10px 0 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  caret-color: auto; /* Ensure caret is visible when typing */
+}
+
+.form-input:focus {
+  outline: none; /* Remove default browser focus outline */
+  border: 1px solid #007bff; /* Optional: Add a subtle focus border (same color as the Register button) */
+}
+
+.input-error {
+  border: 1px solid #dc3545; /* Ensure the error border is 1px thick, making it less prominent */
+}
+
+.error-message {
+  color: #c01022 !important;
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 12px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+  width: 95%;
+  text-align: left !important;
+  align-self: flex-start;
+  background: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  user-select: none; /* Prevent text selection on error messages */
+}
+
+.general-error {
+  color: #c01022;
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 10px;
+  width: 95%;
+  text-align: center;
+  background: none;
+  background-color: transparent;
+  border: none;
+  user-select: none;
+}
+
+.form-button {
+  width: 95%;
+  padding: 10px;
+  margin: 20px 0;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer; /* Indicate the button is clickable */
+  transition: background-color 0.2s ease-in-out;
+  user-select: none;
+}
+
+.form-button:hover {
+  background-color: #0056b3;
+}
+
+.form-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.form-link {
+  margin-top: 10px;
+  user-select: none;
+}
+.form-link a{
+  text-decoration: underline;
+  cursor: pointer;
+}
+.form-link a:hover{
+  color: #0056b3;
+}
